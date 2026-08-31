@@ -1,5 +1,10 @@
 import Link from "next/link";
 
+// Rendered per request so the framework scripts pick up the CSP nonce set by
+// `src/proxy.ts`. A statically prerendered page ships its scripts without the
+// request-time nonce and would violate the Content-Security-Policy.
+export const dynamic = "force-dynamic";
+
 export default function LandingPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col items-center justify-center gap-6 px-6 text-center">

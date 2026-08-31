@@ -4,17 +4,23 @@ import Link from "next/link";
 import { useActionState } from "react";
 
 import { login, signup, type AuthFormState } from "@/lib/auth/actions";
+import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/lib/auth/credentials";
 
 const INITIAL: AuthFormState = {};
 
 interface AuthFormProps {
   mode: "login" | "signup";
   redirectTo?: string;
+  /** Seed message shown before the first submit (e.g. "password updated"). */
+  initialState?: AuthFormState;
 }
 
-export function AuthForm({ mode, redirectTo }: AuthFormProps) {
+export function AuthForm({ mode, redirectTo, initialState }: AuthFormProps) {
   const action = mode === "login" ? login : signup;
-  const [state, formAction, pending] = useActionState(action, INITIAL);
+  const [state, formAction, pending] = useActionState(
+    action,
+    initialState ?? INITIAL,
+  );
 
   const isLogin = mode === "login";
 
@@ -46,10 +52,19 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
           type="password"
           autoComplete={isLogin ? "current-password" : "new-password"}
           required
-          minLength={6}
+          minLength={PASSWORD_MIN_LENGTH}
+          maxLength={PASSWORD_MAX_LENGTH}
           className="rounded-md border border-neutral-300 px-3 py-2 outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-neutral-900"
         />
       </label>
+
+      {isLogin ? (
+        <p className="-mt-1 text-right text-sm">
+          <Link href="/forgot-password" className="text-neutral-500 underline">
+            Forgot password?
+          </Link>
+        </p>
+      ) : null}
 
       {state.error ? (
         <p role="alert" className="text-sm text-red-600 dark:text-red-400">

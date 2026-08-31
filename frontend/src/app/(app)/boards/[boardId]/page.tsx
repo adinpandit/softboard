@@ -1,15 +1,29 @@
-// Placeholder route — the board canvas (React Flow) is implemented in Phases 2–4.
-// Note: in Next.js 16 `params` is a Promise and must be awaited.
+import { notFound } from "next/navigation";
+
+import { BoardHeader } from "@/components/board/BoardHeader";
+import { getBoard } from "@/lib/boards/repository";
+import { UUID_RE } from "@/lib/boards/validation";
+
+// Board dashboard. The route is already gated by `src/proxy.ts` (auth) and RLS
+// (ownership): `getBoard` returns null both when the board is missing and when
+// it belongs to another user, and either way we render a 404.
 export default async function BoardPage({
   params,
 }: {
   params: Promise<{ boardId: string }>;
 }) {
   const { boardId } = await params;
+  if (!UUID_RE.test(boardId)) notFound();
+
+  const board = await getBoard(boardId);
+  if (!board) notFound();
+
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Board {boardId}</h1>
-      <p className="mt-2 text-sm text-neutral-500">Canvas not implemented yet.</p>
-    </main>
+    <div className="flex min-h-full flex-col">
+      <BoardHeader board={board} />
+      <main className="flex flex-1 items-center justify-center p-6 text-sm text-neutral-400">
+        The canvas arrives in Phase 3 — notes, pages, images, links, and threads.
+      </main>
+    </div>
   );
 }
